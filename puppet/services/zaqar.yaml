@@ -1,0 +1,73 @@
+heat_template_version: 2016-04-08
+
+description: >
+  Openstack Zaqar service. Shared for all Heat services.
+
+parameters:
+  ServiceNetMap:
+    default: {}
+    description: Mapping of service_name -> network name. Typically set
+                 via parameter_defaults in the resource registry.  This
+                 mapping overrides those in ServiceNetMapDefaults.
+    type: json
+  EndpointMap:
+    default: {}
+    description: Mapping of service endpoint -> protocol. Typically set
+                 via parameter_defaults in the resource registry.
+    type: json
+  DefaultPasswords:
+    default: {}
+    type: json
+  Debug:
+    default: ''
+    description: Set to True to enable debugging on all services.
+    type: string
+  ZaqarPassword:
+    description: The password for Zaqar
+    type: string
+    hidden: true
+  KeystoneRegion:
+    type: string
+    default: 'regionOne'
+    description: Keystone region for endpoint
+
+
+outputs:
+  role_data:
+    description: Shared role data for the Heat services.
+    value:
+      service_name: zaqar
+      config_settings:
+        zaqar::keystone::authtoken::password: {get_param: ZaqarPassword}
+        zaqar::keystone::authtoken::project_name: 'service'
+        zaqar::keystone::authtoken::auth_url: {get_param: [EndpointMap, KeystoneAdmin, uri_no_suffix]}
+        zaqar::keystone::authtoken::auth_uri: {get_param: [EndpointMap, KeystoneInternal, uri]}
+        zaqar::debug: {get_param: Debug}
+        zaqar::keystone::auth::password: {get_param: ZaqarPassword}
+        zaqar::keystone::auth::public_url: {get_param: [EndpointMap, ZaqarPublic, uri]}
+        zaqar::keystone::auth::admin_url: {get_param: [EndpointMap, ZaqarAdmin, uri]}
+        zaqar::keystone::auth::internal_url: {get_param: [EndpointMap, ZaqarInternal, uri]}
+        zaqar::keystone::auth::region: {get_param: KeystoneRegion}
+        zaqar::keystone::auth::tenant: 'service'
+        zaqar::transport::websocket::bind: {get_param: [EndpointMap, ZaqarInternal, host]}
+        zaqar::transport::wsgi::bind: {get_param: [EndpointMap, ZaqarInternal, host]}
+        zaqar_mongo_db: &zaqar_mongo_db
+          list_join:
+            - ''
+            - - 'mongodb://'
+              - '%{hiera(''mongodb::server::bind_ip'')}'
+              - ':27017'
+        zaqar::management::mongodb::uri: *zaqar_mongo_db
+        zaqar::messaging::mongodb::uri: *zaqar_mongo_db
+        zaqar::db::mysql::user: zaqar
+        zaqar::db::mysql::host: {get_param: [EndpointMap, MysqlInternal, host]}
+        zaqar::db::mysql::dbname: zaqar
+        zaqar::db::mysql::password: {get_param: ZaqarPassword}
+        zaqar::db::mysql::allowed_hosts:
+          - '%'
+          - "%{hiera('mysql_bind_host')}"
+        zaqar::message_pipeline: 'zaqar.notification.notifier'
+        zaqar::unreliable: true
+
+      step_config: |
+        include ::tripleo::profile::base::zaqar
