@@ -1,0 +1,30 @@
+heat_template_version: 2016-04-08
+
+description: >
+  Openstack Zaqar service configured with Puppet
+
+parameters:
+  EndpointMap:
+    default: {}
+    description: Mapping of service endpoint -> protocol. Typically set
+                 via parameter_defaults in the resource registry.
+    type: json
+
+resources:
+  ZaqarBase:
+    type: ../zaqar.yaml
+    properties:
+      EndpointMap: {get_param: EndpointMap}
+
+
+outputs:
+  role_data:
+    description: Role data for the Zaqar role.
+    value:
+      config_settings:
+        map_merge:
+          - get_attr: [ZaqarBase, role_data, config_settings]
+          - zaqar::server::manage_service: false
+            zaqar::server::enabled: false
+      step_config: |
+        include ::tripleo::profile::pacemaker::zaqar

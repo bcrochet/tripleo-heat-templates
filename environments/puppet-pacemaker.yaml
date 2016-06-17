@@ -38,3 +38,4 @@ resource_registry:
   OS::TripleO::Services::NovaScheduler: ../puppet/services/pacemaker/nova-scheduler.yaml
   OS::TripleO::Services::NovaConsoleauth: ../puppet/services/pacemaker/nova-consoleauth.yaml
   OS::TripleO::Services::NovaVncproxy: ../puppet/services/pacemaker/nova-vncproxy.yaml
+  OS::TripleO::Services::Zaqar: ../puppet/services/pacemaker/zaqar.yaml

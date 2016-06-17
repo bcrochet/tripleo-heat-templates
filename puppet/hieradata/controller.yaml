@@ -64,6 +64,7 @@ neutron::keystone::auth::tenant: 'service'
 nova::keystone::auth::tenant: 'service'
 sahara::keystone::auth::tenant: 'service'
 swift::keystone::auth::tenant: 'service'
+zaqar::keystone::auth::tenant: 'service'
 
 # keystone
 keystone::cron::token_flush::maxdelay: 3600
@@ -160,6 +161,10 @@ horizon::vhost_extra_params:
 # mysql
 mysql::server::manage_config_file: true
 
+# zaqar
+zaqar::message_pipeline: 'zaqar.notification.notifier'
+zaqar::admin_tenant_name: 'service'
+zaqar::unreliable: true
 
 tripleo::haproxy::keystone_admin: true
 tripleo::haproxy::keystone_public: true

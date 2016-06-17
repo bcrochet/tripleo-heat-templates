@@ -192,3 +192,12 @@ Sahara:
         uri_suffixes:
             '': /v1.1/%(tenant_id)s
     port: 8386
+
+Zaqar:
+    Internal:
+        vip_param: ZaqarApi
+    Public:
+        vip_param: Public
+    Admin:
+        vip_param: ZaqarApi
+    port: 8888
